@@ -4,6 +4,47 @@
 
 ## Общая схема работы
 
+```mermaid
+graph TD
+    subgraph Клиент["Клиентская часть"]
+        Client["Клиентское приложение"]
+    end
+
+    subgraph Оркестратор["Оркестратор (порт 8080)"]
+        API["REST API"]
+        Parser["Парсер выражений"]
+        TaskManager["Менеджер задач"]
+        ResultStore["Хранилище результатов"]
+    end
+
+    subgraph Агенты["Рабочие агенты"]
+        Agent1["Агент 1"]
+        Agent2["Агент 2"]
+        AgentN["Агент N"]
+    end
+
+    Client -->|"POST /api/v1/calculate"| API
+    API -->|"Выражение"| Parser
+    Parser -->|"Операции"| TaskManager
+    TaskManager -->|"Задания"| Agent1
+    TaskManager -->|"Задания"| Agent2
+    TaskManager -->|"Задания"| AgentN
+    Agent1 -->|"Результаты"| TaskManager
+    Agent2 -->|"Результаты"| TaskManager
+    AgentN -->|"Результаты"| TaskManager
+    TaskManager -->|"Объединение"| ResultStore
+    ResultStore -->|"GET /api/v1/expressions"| API
+    API -->|"Результат"| Client
+
+    classDef client fill:#f9f,stroke:#333,stroke-width:2px,color:#000
+    classDef orchestrator fill:#bbf,stroke:#333,stroke-width:2px,color:#000
+    classDef agent fill:#bfb,stroke:#333,stroke-width:2px,color:#000
+    
+    class Client client
+    class API,Parser,TaskManager,ResultStore orchestrator
+    class Agent1,Agent2,AgentN agent
+```
+
 ### Компоненты системы
 
 - **Оркестратор** (порт 8080 по умолчанию):
